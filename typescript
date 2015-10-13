@@ -1,0 +1,37 @@
+Script started on Mon Oct 12 08:35:29 2015
+ 
+$ ls
+
+main.cpp makefile sdisk.cpp sdisk.h typescript
+
+$ make
+
+g++ -c sdisk.cpp
+g++ sdisk.o -c main.cpp
+clang: warning: sdisk.o: 'linker' input unused
+g++ main.o sdisk.o -o SDisk
+
+$ ls
+
+SDisk main.cpp main.o makefile sdisk.cpp sdisk.h sdisk.o typescript
+
+$ ./SDisk
+
+Should be 32 1s : 11111111111111111111111111111111
+Should be 32 2s : 22222222222222222222222222222222
+
+$ ls
+
+SDisk main.cpp main.o makefile sdisk.cpp sdisk.h sdisk.o test1 typescript
+
+$ cat
+
+################################################################################
+################################################11111111111111111111111111111111
+################################################################################
+################22222222222222222222222222222222################################
+################################################################################
+################################################################################
+################################
+
+Script done on Mon Oct 12 08:35:58 2015
