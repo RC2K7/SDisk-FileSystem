@@ -1,8 +1,10 @@
 /*
 *	Ruben Castaneda
 *	CSE 461
-*	Lab 2
+*	Lab 3
 *	
+*	main.cpp
+*
 *	Main test block for verifying functionality of SDisk.
 */
 

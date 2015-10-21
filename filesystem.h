@@ -1,3 +1,11 @@
+/*
+*	Ruben Castaneda
+*	CSE 461
+*	Lab 3
+*
+*	filesystem.h
+*/
+
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
@@ -23,11 +31,19 @@ class FileSystem : public SDisk
 		int writeBlock(string, int, string);
 		int nextBlock(string, int);
 	private:
+		int initRoot();
+		int initFat();
+		
+		// Configurable Variables
+		static const char delimiter = ' ';
+		
 		int rootSize;
 		int fatSize;
 		vector<string> rootFileName;
 		vector<int> rootFirstBlock;
 		vector<int> fat;
 };
+
+static vector<string> block(string, int);
 
 #endif

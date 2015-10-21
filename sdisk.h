@@ -1,7 +1,9 @@
 /*
 *	Ruben Castaneda
 *	CSE 461
-*	Lab 2
+*	Lab 3
+*
+*	sdisk.h
 */
 
 #ifndef SDISK_H
@@ -18,6 +20,7 @@ class SDisk
 		int putBlock(int, string);
 		int getNumberOfBlocks();
 		int getBlockSize();
+		int getStatusCode();
 		bool good();
 	private:
 		string diskName;

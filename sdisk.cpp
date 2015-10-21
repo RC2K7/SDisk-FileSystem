@@ -1,7 +1,9 @@
 /*
 *	Ruben Castaneda
 *	CSE 461
-*	Lab 2
+*	Lab 3
+*
+*	sdisk.cpp
 */
 #include "sdisk.h"
 
@@ -72,6 +74,11 @@ int SDisk::getNumberOfBlocks()
 int SDisk::getBlockSize()
 {
 	return this->blockSize;
+}
+
+int SDisk::getStatusCode()
+{
+	return this->statusCode;
 }
 
 bool SDisk::good()

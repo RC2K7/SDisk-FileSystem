@@ -1,5 +1,7 @@
 all: main
 
+build: cleanall main
+
 main: main.o sdisk.o filesystem.o
 	g++ main.o sdisk.o filesystem.o -o SDisk
 
