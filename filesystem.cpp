@@ -27,11 +27,13 @@ FileSystem::FileSystem() : SDisk("test1", 16, 32)
 	this->fsSynch();
 }
 
+// Why Do We Need This??
 int FileSystem::fsClose()
 {
 	return 1;
 }
 
+// Writes FileSystem (Root/FAT) to SDisk
 int FileSystem::fsSynch()
 {
 	stringstream ssBuffer;
@@ -41,7 +43,7 @@ int FileSystem::fsSynch()
 		ssBuffer << this->rootFileName[i] << this->delimiter << setw(5) <<
 			setfill('0') << this->rootFirstBlock[i] << this->delimiter;
 	vector<string> vecRoot = block(ssBuffer.str(), this->getBlockSize());
-	this->putBlock(1, vecRoot[0]);
+	this->putBlock(0, vecRoot[0]);
 	
 	ssBuffer.str("");
 	
@@ -50,26 +52,50 @@ int FileSystem::fsSynch()
 		ssBuffer << setw(5) << setfill('0') << fat[i] << this->delimiter;
 	vector<string> vecFAT = block(ssBuffer.str(), this->getBlockSize());
 	for (int i = 0; i < vecFAT.size(); i++)
-		this->putBlock((2 + i), vecFAT[i]);
+		this->putBlock((1 + i), vecFAT[i]);
 	
 	return 1;
 }
 
-
-int FileSystem::newFile(string)
+// Creates New File in Root
+int FileSystem::newFile(string fileName)
 {
-	return 1;
+	// Handles FileNames Greater Than 5 Chars
+	if (fileName.legth() > 5)
+		fileName = fileName.substr(0, 5);
+
+	// Returns If File Exists
+	if (this->getFirstBlock(fileName) != -1)
+		return 0;
+
+	for (int i = 0; i < this->rootFileName.size(); i++)
+		if (this->rootFileName[i] == ".....") {
+			this->rootFileName[i] = fileName;
+			this->rootFirstBlock = 0;
+			return 1;
+		}
+
+	return 0;
 }
 
-
+// Removes Empty File From Root
 int FileSystem::rmFile(string)
 {
 	return 1;
 }
 
-int FileSystem::getFirstBlock(string)
+// Returns The First Block In A File
+int FileSystem::getFirstBlock(string fileName)
 {
-	return 1;
+	// Handles FileNames Greater Than 5 Chars
+	if (fileName.length() > 5)
+		fileName = fileName.substr(0, 5);
+
+	for (int i = 0; i < this->rootFileName.size(); i++)
+		if (this->fileName[i] == fileName)
+			return this->rootFirstBlock[i];
+
+	return -1;
 }
 
 
@@ -108,7 +134,7 @@ int FileSystem::initRoot()
 			ssBuffer << "....." << this->delimiter << "00000" << this->delimiter;
 	} else {
 		string temp;
-		this->getBlock(1, temp);
+		this->getBlock(0, temp);
 		ssBuffer << temp;
 	}
 	
@@ -134,9 +160,9 @@ int FileSystem::initRoot()
 int FileSystem::initFat()
 {
 	stringstream ssBuffer;
+	int dataStart = 1 + this->fatSize;
 	
 	if (this->getStatusCode() == 1) {
-		int dataStart = 2 + this->fatSize;
 		ssBuffer << setw(5) << setfill('0') << dataStart << this->delimiter;
 		for (int i = 1; i < dataStart; i++)
 			ssBuffer << "00000" << this->delimiter;
@@ -145,7 +171,7 @@ int FileSystem::initFat()
 		ssBuffer << "00000" << this->delimiter;
 	} else {
 		string temp;
-		for (int i = 2; i < (2 + this->fatSize); i++) {
+		for (int i = 1; i < dataStart; i++) {
 			this->getBlock(i, temp);
 			ssBuffer << temp;
 		}
