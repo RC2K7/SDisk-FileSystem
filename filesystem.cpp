@@ -72,16 +72,30 @@ int FileSystem::newFile(string fileName)
 		if (this->rootFileName[i] == ".....") {
 			this->rootFileName[i] = fileName;
 			this->rootFirstBlock = 0;
-			return 1;
+			return this->fsSynch();
 		}
 
 	return 0;
 }
 
 // Removes Empty File From Root
-int FileSystem::rmFile(string)
+int FileSystem::rmFile(string fileName)
 {
-	return 1;
+	// Handles FileNames Greater Than 5 Chars
+	if (fileName.length() > 5)
+		fileName = fileName.substr(0, 5);
+
+	int tmpFB = this->getFirstBlock(fileName);
+
+	// Return 0 File Does Not Exist or File Contains Blocks
+	if (tmpFB != 0)
+		return 0;
+
+	for (int i = 0; i < this->rootFileName.size(); i++)
+		if (this->rootFileName[i] == fileName)
+			this->rootFileName[i] = ".....";
+
+	return this->fsSynch();
 }
 
 // Returns The First Block In A File
@@ -98,29 +112,32 @@ int FileSystem::getFirstBlock(string fileName)
 	return -1;
 }
 
-
-int FileSystem::addBlock(string)
+// Reserve A Block For A File
+int FileSystem::addBlock(string fileName)
 {
 	return 1;
 }
 
-
-int FileSystem::delBlock(string)
+// Remove Last Block From A File
+int FileSystem::delBlock(string fileName)
 {
 	return 1;
 }
 
-int FileSystem::readBlock(string, int, string&)
+// Retrieve Block From File
+int FileSystem::readBlock(string fileName, int block, string& buffer)
 {
 	return 1;
 }
 
-int FileSystem::writeBlock(string, int, string)
+// Write Buffer To Block Within File
+int FileSystem::writeBlock(string fileName, int block, string buffer)
 {
 	return 1;
 }
 
-int FileSystem::nextBlock(string, int)
+// Get Following Block 
+int FileSystem::nextBlock(string fileName, int block)
 {
 	return 1;
 }
