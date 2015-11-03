@@ -61,7 +61,7 @@ int FileSystem::fsSynch()
 int FileSystem::newFile(string fileName)
 {
 	// Handles FileNames Greater Than 5 Chars
-	if (fileName.legth() > 5)
+	if (fileName.length() > 5)
 		fileName = fileName.substr(0, 5);
 
 	// Returns If File Exists
@@ -71,7 +71,7 @@ int FileSystem::newFile(string fileName)
 	for (int i = 0; i < this->rootFileName.size(); i++)
 		if (this->rootFileName[i] == ".....") {
 			this->rootFileName[i] = fileName;
-			this->rootFirstBlock = 0;
+			this->rootFirstBlock[i] = 0;
 			return this->fsSynch();
 		}
 
@@ -106,7 +106,7 @@ int FileSystem::getFirstBlock(string fileName)
 		fileName = fileName.substr(0, 5);
 
 	for (int i = 0; i < this->rootFileName.size(); i++)
-		if (this->fileName[i] == fileName)
+		if (this->rootFileName[i] == fileName)
 			return this->rootFirstBlock[i];
 
 	return -1;
@@ -115,6 +115,41 @@ int FileSystem::getFirstBlock(string fileName)
 // Reserve A Block For A File
 int FileSystem::addBlock(string fileName)
 {
+	// Handles FileNames Greater Than 5 Chars
+	if (fileName.length() > 5)
+		fileName = fileName.substr(0, 5);
+
+	// There Is No Free Blocks
+	if (this->fat[0] == 0)
+		return 0;
+
+	int alloc = this->fat[0];
+
+	// File Does Not Exist
+	switch (this->getFirstBlock(fileName))
+	{
+		case -1:
+			return 0;
+			break;
+		case 0:
+			for (int i = 0; i < this->rootFileName.size(); i++)
+				if (this->rootFileName[i] == fileName) {
+					this->rootFirstBlock[i] = alloc;
+					this->fat[0] = this->fat[alloc];
+					this->fat[alloc] = 0;
+					break;
+				}
+			break;
+		default:
+			int curB = this->getFirstBlock(fileName);
+			while (this->fat[curB] != 0)
+				curB = this->fat[curB];
+			this->fat[curB] = alloc;
+			this->fat[0] = this->fat[alloc];
+			this->fat[alloc] = 0;
+			break;
+	}
+
 	return 1;
 }
 
