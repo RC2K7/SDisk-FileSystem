@@ -19,7 +19,7 @@ using namespace std;
 class FileSystem : public SDisk
 {
 	public:
-		FileSystem();
+		FileSystem(string, int, int);
 		int fsClose();
 		int fsSynch();
 		int newFile(string);

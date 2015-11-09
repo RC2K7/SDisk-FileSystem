@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <sstream>
 
-FileSystem::FileSystem() : SDisk("test1", 16, 32)
+FileSystem::FileSystem(string diskName, int numOfBlocks, int blockSize) : SDisk(diskName, numOfBlocks, blockSize)
 {
 	if (this->getStatusCode() <= 0)
 		return;
