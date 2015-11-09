@@ -125,7 +125,7 @@ int FileSystem::addBlock(string fileName)
 
 	int alloc = this->fat[0];
 
-	// File Does Not Exist
+	// Run Sqitch On First Block
 	switch (this->getFirstBlock(fileName))
 	{
 		case -1:
@@ -137,7 +137,8 @@ int FileSystem::addBlock(string fileName)
 					this->rootFirstBlock[i] = alloc;
 					this->fat[0] = this->fat[alloc];
 					this->fat[alloc] = 0;
-					break;
+
+                    return this->fsSynch();
 				}
 			break;
 		default:
@@ -169,7 +170,7 @@ int FileSystem::delBlock(string fileName, int blockNum)
         }
         this->fat[blockNum] = this->fat[0];
         this->fat[0] = blockNum;
-        return 1;
+        return this->fsSynch();
     }
 
     for ( ; curBlock != 0; curBlock = this->fat[curBlock]) {
@@ -178,7 +179,7 @@ int FileSystem::delBlock(string fileName, int blockNum)
 
             this->fat[blockNum] = this->fat[0];
             this->fat[0] = blockNum;
-            return 1;
+            return this->fsSynch();
         }
     }
 
@@ -186,9 +187,18 @@ int FileSystem::delBlock(string fileName, int blockNum)
 }
 
 // Retrieve Block From File
-int FileSystem::readBlock(string fileName, int block, string& buffer)
+int FileSystem::readBlock(string fileName, int blockNum, string& buffer)
 {
-	return 1;
+    int curBlock = this->getFirstBlock(fileName);
+
+    if (curBlock == -1)
+        return 0;
+
+    for ( ; curBlock != 0; curBlock = this->fat[curBlock])
+        if (curBlock == blockNum)
+            return this->getBlock(blockNum, buffer);
+
+	return 0;
 }
 
 // Write Buffer To Block Within File
