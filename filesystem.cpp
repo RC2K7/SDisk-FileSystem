@@ -232,19 +232,35 @@ int FileSystem::writeBlock(string fileName, int blockNum, string buffer)
 }
 
 // Get Following Block
-int FileSystem::nextBlock(string fileName, int block)
+int FileSystem::nextBlock(string fileName, int blockNum)
 {
-	return 1;
+	int curBlock = this->getFirstBlock(fileName);
+
+    // File Does Not Exist
+    if (curBlock == -1)
+        return 0;
+
+    // Search File For Given Block Number
+    for ( ; curBlock != 0; curBlock = this->fat[curBlock])
+        if (curBlock == blockNum)
+            // Returns The Block Number Of The Succeeding Block
+            return this->fat[curBlock];
+
+    // Handles blockNum = 0, etc.
+    return 0;
 }
 
+// Initializes Root
 int FileSystem::initRoot()
 {
 	stringstream ssBuffer;
 
+    // FileSystem Was Just Created
 	if (this->getStatusCode() == 1) {
+        // Setup Root With Default Values
 		for (int i = 0; i < this->rootSize; i++)
 			ssBuffer << "....." << this->delimiter << "00000" << this->delimiter;
-	} else {
+	} else { // FileSystem Previously Existed
 		string temp;
 		this->getBlock(0, temp);
 		ssBuffer << temp;
@@ -253,7 +269,7 @@ int FileSystem::initRoot()
 	vector<string>vecRoot = block(ssBuffer.str(), this->getBlockSize());
 	ssBuffer.str(vecRoot[0]);
 
-	{
+	{ // Local Scope
 		int i;
 		string entry;
 		for (i = 0; i  < (this->rootSize * 2) && getline(ssBuffer, entry,
@@ -269,19 +285,22 @@ int FileSystem::initRoot()
 	return 1;
 }
 
+// Initializes Fat
 int FileSystem::initFat()
 {
 	stringstream ssBuffer;
 	int dataStart = 1 + this->fatSize;
 
+    // FileSystem Was Just Created
 	if (this->getStatusCode() == 1) {
+        // Setup Fat With Default Variables
 		ssBuffer << setw(5) << setfill('0') << dataStart << this->delimiter;
 		for (int i = 1; i < dataStart; i++)
 			ssBuffer << "00000" << this->delimiter;
 		for (int i = dataStart; i < (this->getNumberOfBlocks() - 1); i++)
 			ssBuffer << setw(5) << setfill('0') << (i + 1) << this->delimiter;
 		ssBuffer << "00000" << this->delimiter;
-	} else {
+	} else {  // FileSystem Previously Existed
 		string temp;
 		for (int i = 1; i < dataStart; i++) {
 			this->getBlock(i, temp);
@@ -294,7 +313,7 @@ int FileSystem::initFat()
 	for (int i = 0; i < vecFAT.size(); i++)
 		ssBuffer << vecFAT[i];
 
-	{
+	{ // Local Scope
 		int i;
 		string entry;
 		for (i = 0; i < this->getNumberOfBlocks() && getline(ssBuffer, entry,
@@ -307,6 +326,7 @@ int FileSystem::initFat()
 	return 1;
 }
 
+// Splits String Into Block Sized Data Sets
 static vector<string> block(string buffer, int b)
 {
 	vector<string> blocks;
