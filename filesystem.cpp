@@ -113,7 +113,7 @@ int FileSystem::getFirstBlock(string fileName)
 }
 
 // Reserve A Block For A File
-int FileSystem::addBlock(string fileName)
+int FileSystem::addBlock(string fileName, string buffer)
 {
 	// Handles FileNames Greater Than 5 Chars
 	if (fileName.length() > 5)
@@ -140,6 +140,9 @@ int FileSystem::addBlock(string fileName)
 					this->fat[0] = this->fat[alloc];
 					this->fat[alloc] = 0;
 
+                    // Write The Buffer To SDisk
+                    this->putBlock(alloc, buffer);
+
                     return this->fsSynch();
 				}
 			break;
@@ -151,6 +154,10 @@ int FileSystem::addBlock(string fileName)
 			this->fat[curB] = alloc;
 			this->fat[0] = this->fat[alloc];
 			this->fat[alloc] = 0;
+
+            // Write The Buffer To SDisk
+            this->putBlock(alloc, buffer);
+
 			break;
 	}
 
@@ -327,7 +334,7 @@ int FileSystem::initFat()
 }
 
 // Splits String Into Block Sized Data Sets
-static vector<string> block(string buffer, int b)
+vector<string> FileSystem::block(string buffer, int b)
 {
 	vector<string> blocks;
 	int numberofblocks = 0;
@@ -340,15 +347,15 @@ static vector<string> block(string buffer, int b)
 	}
 
 	string tempblock;
-	for (int i=0; i<numberofblocks; i++)
+	for (int i = 0; i < numberofblocks; i++)
 	{
-		tempblock = buffer.substr(b*i,b);
+		tempblock = buffer.substr(b*i, b);
 		blocks.push_back(tempblock);
 	}
 
-	int lastblock = blocks.size()-1;
+	int lastblock = blocks.size() - 1;
 
-	for (int i=blocks[lastblock].length(); i<b; i++)
+	for (int i = blocks[lastblock].length(); i < b; i++)
 	{
 		blocks[lastblock] += "#";
 	}
