@@ -128,9 +128,11 @@ int FileSystem::addBlock(string fileName)
 	// Run Sqitch On First Block
 	switch (this->getFirstBlock(fileName))
 	{
+        // File Does Not Exit
 		case -1:
 			return 0;
 			break;
+        // File Is Currently Empty
 		case 0:
 			for (int i = 0; i < this->rootFileName.size(); i++)
 				if (this->rootFileName[i] == fileName) {
@@ -141,6 +143,7 @@ int FileSystem::addBlock(string fileName)
                     return this->fsSynch();
 				}
 			break;
+        // File Exists And Contains Blocks
 		default:
 			int curB = this->getFirstBlock(fileName);
 			while (this->fat[curB] != 0)
@@ -158,25 +161,33 @@ int FileSystem::addBlock(string fileName)
 int FileSystem::delBlock(string fileName, int blockNum)
 {
     int curBlock = this->getFirstBlock(fileName);
+
+    // File Does Not Exist
     if (curBlock == -1)
         return 0;
 
+    // Removing First Block Of File
     if (curBlock == blockNum) {
         for (int i = 0; i < this->rootFileName.size(); i++) {
             if (this->rootFileName[i] == fileName) {
+                // Update Root [First Block]
                 this->rootFirstBlock[i] = this->fat[blockNum];
                 break;
             }
         }
+
+        // Update + Sync, Fat And Root
         this->fat[blockNum] = this->fat[0];
         this->fat[0] = blockNum;
         return this->fsSynch();
     }
 
+    // Block Is Not First Block
     for ( ; curBlock != 0; curBlock = this->fat[curBlock]) {
         if (this->fat[curBlock] == blockNum) {
             this->fat[curBlock] = this->fat[blockNum];
 
+            // Sync Changes To Fat
             this->fat[blockNum] = this->fat[0];
             this->fat[0] = blockNum;
             return this->fsSynch();
@@ -191,9 +202,11 @@ int FileSystem::readBlock(string fileName, int blockNum, string& buffer)
 {
     int curBlock = this->getFirstBlock(fileName);
 
+    // File Does Not Exist
     if (curBlock == -1)
         return 0;
 
+    // Loop Through All Blocks Owned By File
     for ( ; curBlock != 0; curBlock = this->fat[curBlock])
         if (curBlock == blockNum)
             return this->getBlock(blockNum, buffer);
@@ -202,9 +215,20 @@ int FileSystem::readBlock(string fileName, int blockNum, string& buffer)
 }
 
 // Write Buffer To Block Within File
-int FileSystem::writeBlock(string fileName, int block, string buffer)
+int FileSystem::writeBlock(string fileName, int blockNum, string buffer)
 {
-	return 1;
+    int curBlock = this->getFirstBlock(fileName);
+
+    // File Does Not Exist
+    if (curBlock == -1)
+        return 0;
+
+    // Loop Through File Blocks Looking For blockNum
+    for ( ; curBlock != 0; curBlock = this->fat[curBlock])
+        if (curBlock == blockNum)
+            return this->putBlock(blockNum, buffer);
+
+	return 0;
 }
 
 // Get Following Block
