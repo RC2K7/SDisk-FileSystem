@@ -19,7 +19,7 @@ int main()
 {
     FileSystem *fsys = new FileSystem("test1", 256, 128);
 
-    // Local Scope Lab 4 Main (Collapsable)
+    // Local Scope Lab 4 and 5 Main (Collapsable)
     {
         fsys->newFile("file1");
         fsys->newFile("file2");
