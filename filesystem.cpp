@@ -15,15 +15,15 @@ FileSystem::FileSystem() : SDisk("test1", 16, 32)
 {
 	if (this->getStatusCode() <= 0)
 		return;
-	
+
 	this->rootSize = this->getBlockSize() / 12;
 	int byteReq = this->getNumberOfBlocks() * 6;
 	this->fatSize = (byteReq / this->getBlockSize()) + (byteReq %
 		this->getBlockSize() > 0);
-		
+
 	this->initRoot();
 	this->initFat();
-	
+
 	this->fsSynch();
 }
 
@@ -37,23 +37,23 @@ int FileSystem::fsClose()
 int FileSystem::fsSynch()
 {
 	stringstream ssBuffer;
-	
+
 	//Write Root To SDisk
 	for (int i = 0; i < this->rootSize; i++)
 		ssBuffer << this->rootFileName[i] << this->delimiter << setw(5) <<
 			setfill('0') << this->rootFirstBlock[i] << this->delimiter;
 	vector<string> vecRoot = block(ssBuffer.str(), this->getBlockSize());
 	this->putBlock(0, vecRoot[0]);
-	
+
 	ssBuffer.str("");
-	
+
 	//Write fat To SDisk
 	for (int i = 0; i < this->fat.size(); i++)
 		ssBuffer << setw(5) << setfill('0') << fat[i] << this->delimiter;
 	vector<string> vecFAT = block(ssBuffer.str(), this->getBlockSize());
 	for (int i = 0; i < vecFAT.size(); i++)
 		this->putBlock((1 + i), vecFAT[i]);
-	
+
 	return 1;
 }
 
@@ -154,9 +154,35 @@ int FileSystem::addBlock(string fileName)
 }
 
 // Remove Last Block From A File
-int FileSystem::delBlock(string fileName)
+int FileSystem::delBlock(string fileName, int blockNum)
 {
-	return 1;
+    int curBlock = this->getFirstBlock(fileName);
+    if (curBlock == -1)
+        return 0;
+
+    if (curBlock == blockNum) {
+        for (int i = 0; i < this->rootFileName.size(); i++) {
+            if (this->rootFileName[i] == fileName) {
+                this->rootFirstBlock[i] = this->fat[blockNum];
+                break;
+            }
+        }
+        this->fat[blockNum] = this->fat[0];
+        this->fat[0] = blockNum;
+        return 1;
+    }
+
+    for ( ; curBlock != 0; curBlock = this->fat[curBlock]) {
+        if (this->fat[curBlock] == blockNum) {
+            this->fat[curBlock] = this->fat[blockNum];
+
+            this->fat[blockNum] = this->fat[0];
+            this->fat[0] = blockNum;
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 // Retrieve Block From File
@@ -171,7 +197,7 @@ int FileSystem::writeBlock(string fileName, int block, string buffer)
 	return 1;
 }
 
-// Get Following Block 
+// Get Following Block
 int FileSystem::nextBlock(string fileName, int block)
 {
 	return 1;
@@ -180,7 +206,7 @@ int FileSystem::nextBlock(string fileName, int block)
 int FileSystem::initRoot()
 {
 	stringstream ssBuffer;
-	
+
 	if (this->getStatusCode() == 1) {
 		for (int i = 0; i < this->rootSize; i++)
 			ssBuffer << "....." << this->delimiter << "00000" << this->delimiter;
@@ -189,10 +215,10 @@ int FileSystem::initRoot()
 		this->getBlock(0, temp);
 		ssBuffer << temp;
 	}
-	
+
 	vector<string>vecRoot = block(ssBuffer.str(), this->getBlockSize());
 	ssBuffer.str(vecRoot[0]);
-	
+
 	{
 		int i;
 		string entry;
@@ -205,7 +231,7 @@ int FileSystem::initRoot()
 				this->rootFirstBlock.push_back(std::stoi(entry, nullptr, 10));
 		}
 	}
-	
+
 	return 1;
 }
 
@@ -213,7 +239,7 @@ int FileSystem::initFat()
 {
 	stringstream ssBuffer;
 	int dataStart = 1 + this->fatSize;
-	
+
 	if (this->getStatusCode() == 1) {
 		ssBuffer << setw(5) << setfill('0') << dataStart << this->delimiter;
 		for (int i = 1; i < dataStart; i++)
@@ -228,12 +254,12 @@ int FileSystem::initFat()
 			ssBuffer << temp;
 		}
 	}
-	
+
 	vector<string> vecFAT = block(ssBuffer.str(), this->getBlockSize());
 	ssBuffer.str("");
 	for (int i = 0; i < vecFAT.size(); i++)
 		ssBuffer << vecFAT[i];
-	
+
 	{
 		int i;
 		string entry;
@@ -243,7 +269,7 @@ int FileSystem::initFat()
 			this->fat.push_back(std::stoi(entry, nullptr, 10));
 		}
 	}
-	
+
 	return 1;
 }
 
@@ -252,26 +278,26 @@ static vector<string> block(string buffer, int b)
 	vector<string> blocks;
 	int numberofblocks = 0;
 
-	if (buffer.length() % b == 0) 
-	{ 
+	if (buffer.length() % b == 0)
+	{
 		numberofblocks = buffer.length()/b;
 	} else {
 		numberofblocks = buffer.length()/b +1;
 	}
-	
+
 	string tempblock;
 	for (int i=0; i<numberofblocks; i++)
 	{
 		tempblock = buffer.substr(b*i,b);
 		blocks.push_back(tempblock);
 	}
-	
+
 	int lastblock = blocks.size()-1;
-	
+
 	for (int i=blocks[lastblock].length(); i<b; i++)
 	{
 		blocks[lastblock] += "#";
 	}
-	
+
 	return blocks;
 }

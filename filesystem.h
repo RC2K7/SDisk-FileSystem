@@ -26,17 +26,17 @@ class FileSystem : public SDisk
 		int rmFile(string);
 		int getFirstBlock(string);
 		int addBlock(string);
-		int delBlock(string);
+		int delBlock(string, int);
 		int readBlock(string, int, string&);
 		int writeBlock(string, int, string);
 		int nextBlock(string, int);
 	private:
 		int initRoot();
 		int initFat();
-		
+
 		// Configurable Variables
 		static const char delimiter = ' ';
-		
+
 		int rootSize;
 		int fatSize;
 		vector<string> rootFileName;
