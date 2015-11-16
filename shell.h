@@ -6,17 +6,27 @@
 *	shell.h
 */
 
+#include <string>
+
+#include "filesystem.h"
+
+using namespace std;
+
 #ifndef SHELL_H
 #define SHELL_H
 
-class Shell
+class Shell : public FileSystem
 {
+public:
 	Shell(string, int, int);
     int dir();
     int add(string);
     int del(string);
     int type(string);
     int copy(string);
+
+private:
+    void runShell();
 };
 
 #endif
