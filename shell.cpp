@@ -22,19 +22,35 @@ int Shell::dir(){
     for (int i = 0; i < tmp.size(); i++)
         cout << tmp[i] << " ";
     cout << endl;
-    
+
     return 1;
 }
 
 // Add File To FileSystem
 int Shell::add(string fileName)
 {
+    this->newFile(fileName);
     return 1;
 }
 
 // Delete File From FileSystem
 int Shell::del(string fileName)
 {
+    int curBlock = this->getFirstBlock(fileName);
+
+    // Return If File Does Not Exist
+    if (curBlock == -1) {
+        cout << "Cannot Find File To Remove" << endl;
+        return 0;
+    }
+
+    // Remove All Blocks From File
+    while ((curBlock = this->getFirstBlock(fileName)) > 0)
+        this->delBlock(fileName, curBlock);
+
+    // Remove File From Root
+    this->rmFile(fileName);
+
     return 1;
 }
 
