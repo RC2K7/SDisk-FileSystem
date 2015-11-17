@@ -23,7 +23,7 @@ public:
     int add(string);
     int del(string);
     int type(string);
-    int copy(string);
+    int copy(string, string);
 
 private:
     void runShell();

@@ -17,6 +17,12 @@ Shell::Shell(string diskName, int numberOfBlocks, int blockSize) : FileSystem(di
 
 // Calls LS and Ouptuts All Filenames
 int Shell::dir(){
+    vector<string> tmp = this->ls();
+
+    for (int i = 0; i < tmp.size(); i++)
+        cout << tmp[i] << " ";
+    cout << endl;
+    
     return 1;
 }
 

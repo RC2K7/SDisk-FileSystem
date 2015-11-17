@@ -30,6 +30,7 @@ class FileSystem : public SDisk
 		int readBlock(string, int, string&);
 		int writeBlock(string, int, string);
 		int nextBlock(string, int);
+        vector<string> ls();
 
         static vector<string> block(string, int);
 	private:

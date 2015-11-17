@@ -333,6 +333,19 @@ int FileSystem::initFat()
 	return 1;
 }
 
+// Returns A Vector Containing All FileNames
+vector<string> FileSystem::ls()
+{
+    vector<string> files;
+
+    // Loop Through All FileNames And Get All Allocated Files
+    for (int i = 0; i < this->rootFileName.size(); i++)
+        if (this->rootFileName[i] != ".....")
+            files.push_back(this->rootFileName[i]);
+
+    return files;
+}
+
 // Splits String Into Block Sized Data Sets
 vector<string> FileSystem::block(string buffer, int b)
 {
