@@ -1,7 +1,7 @@
 /*
 *	Ruben Castaneda
 *	CSE 461
-*	Lab 3
+*	Lab 6
 *
 *	filesystem.h
 */

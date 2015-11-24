@@ -1,7 +1,7 @@
 /*
 *	Ruben Castaneda
 *	CSE 461
-*	Lab 3
+*	Lab 6
 *
 *	sdisk.cpp
 */
@@ -14,9 +14,9 @@ SDisk::SDisk(string diskName, int numberOfBlocks, int blockSize)
 	this->diskName = diskName;
 	this->numberOfBlocks = numberOfBlocks;
 	this->blockSize = blockSize;
-	
+
 	fstream fStream;
-	
+
 	fStream.open(this->diskName.c_str(), ios::in);
 	if (fStream.fail()) {
 		fStream.open(this->diskName.c_str(), ios::out);
@@ -34,35 +34,35 @@ SDisk::SDisk(string diskName, int numberOfBlocks, int blockSize)
 int SDisk::getBlock(int blockNumber, string& dataOut)
 {
 	fstream sFile(this->diskName.c_str(), ios::in);
-	
+
 	if (sFile.fail())
 		return 0;
-	
+
 	sFile.seekg(blockNumber * this->blockSize);
 	dataOut = "";
-	
+
 	for (int x = 0; x < this->blockSize; x++)
 		dataOut += sFile.get();
-		
+
 	sFile.close();
-	
+
 	return 1;
 }
 
 int SDisk::putBlock(int blockNumber, string dataIn)
 {
 	fstream sFile(this->diskName.c_str(), ios::in | ios::out);
-	
+
 	if (sFile.fail())
 		return 0;
-	
+
 	sFile.seekg(blockNumber * this->blockSize);
-	
+
 	for (int x = 0; x < dataIn.length() && x < this->blockSize; x++)
 		sFile.put(dataIn[x]);
-		
+
 	sFile.close();
-	
+
 	return 1;
 }
 

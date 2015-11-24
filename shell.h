@@ -25,6 +25,9 @@ public:
     int type(string);
     int copy(string, string);
 
+    // Custom Functions Because I Can
+    int append(string);
+
 private:
     void runShell();
 };

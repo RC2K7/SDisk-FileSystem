@@ -1,3 +1,11 @@
+/*
+*	Ruben Castaneda
+*	CSE 461
+*	Lab 6
+*
+*	shell.cpp
+*/
+
 #include "shell.h"
 
 #include <iostream>
@@ -29,7 +37,13 @@ int Shell::dir(){
 // Add File To FileSystem
 int Shell::add(string fileName)
 {
-    this->newFile(fileName);
+    if (this->newFile(fileName)) {
+        cout << "Would You Like To Add Data (y/n): ";
+        string buffer;
+        getline(cin, buffer);
+        if (buffer == "y" || buffer == "Y")
+            this->append(fileName);
+    };
     return 1;
 }
 
@@ -57,12 +71,74 @@ int Shell::del(string fileName)
 // Lists The Contents Of A File (Similiar To 'cat' On Linux)
 int Shell::type(string fileName)
 {
+    string fileBuffer = "";
+    string blockBuffer = "";
+
+    for ( int curBlock = getFirstBlock(fileName); curBlock != 0; curBlock = this->nextBlock(fileName, curBlock)) {
+        this->readBlock(fileName, curBlock, blockBuffer);
+        fileBuffer += blockBuffer;
+    }
+
+    fileBuffer = fileBuffer.substr(0, fileBuffer.find_first_of('#'));
+
+    cout << fileBuffer << endl;
+
     return 1;
 }
 
 // Copies One File To Another File
 int Shell::copy(string src, string dest)
 {
+    if (this->getFirstBlock(src) == -1) {
+        cout << "Could Not Find Source File!" << endl;
+        return 0;
+    } else if (this->getFirstBlock(dest) >= 0) {
+        cout << "Destination File Already Exists!" << endl;
+        return 0;
+    }
+
+    if (this->newFile(dest) == 0) {
+        cout << "Could Not Create File" << endl;
+        return 0;
+    }
+
+    string buffer = "";
+    for (int curBlock = this->getFirstBlock(src); curBlock != 0; curBlock = this->nextBlock(src, curBlock)) {
+        this->readBlock(src, curBlock, buffer);
+        this->addBlock(dest, buffer);
+    }
+
+    return 1;
+}
+
+// Allows The Addition Of Data To A File
+int Shell::append(string fileName)
+{
+    if (getFirstBlock(fileName) == -1) {
+        cout << "Could Not Find File" << endl;
+        return 0;
+    }
+
+    int lastBlock;
+    for (lastBlock = this->getFirstBlock(fileName); lastBlock != 0 && this->nextBlock(fileName, lastBlock) != 0; lastBlock = nextBlock(fileName, lastBlock)) ;
+
+    string totalBuffer;
+    if (lastBlock != 0) {
+        this->readBlock(fileName, lastBlock, totalBuffer);
+        this->delBlock(fileName, lastBlock);
+        totalBuffer = totalBuffer.substr(0, totalBuffer.find_first_of('#'));
+    }
+
+    string buffer;
+    cout << "Enter Data:" << endl;
+    getline(cin, buffer);
+    totalBuffer += buffer;
+
+    vector<string> blocks = block(totalBuffer, this->getBlockSize());
+
+    for (int i = 0; i < blocks.size(); i++)
+        this->addBlock(fileName, blocks[i]);
+
     return 1;
 }
 
@@ -110,6 +186,12 @@ void Shell::runShell()
                 continue;
             }
             this->copy(args[1], args[2]);
+        } else if (args[0] == "app") {
+            if (args.size() < 2) {
+                cout << "Inoccrent Number of Arguments" << endl;
+                continue;
+            }
+            this->append(args[1]);
         } else {
             cout << "Unknown Command" << endl;
         }
