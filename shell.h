@@ -6,14 +6,14 @@
 *	shell.h
 */
 
+#ifndef SHELL_H
+#define SHELL_H
+
 #include <string>
 
 #include "filesystem.h"
 
 using namespace std;
-
-#ifndef SHELL_H
-#define SHELL_H
 
 class Shell : public FileSystem
 {
