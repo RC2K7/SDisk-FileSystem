@@ -14,13 +14,13 @@
 class Table : public FileSystem {
 public:
 	Table(string, int, int, string, string);
-	int Build_Table(string);
-	int Search(string value);
+	int buildTable(string);
+	int search(string value);
 private:
 	string flatFile;
 	string indexFile;
 	
-	int IndexSearch(string);
+	int indexSearch(string);
 };
 
 #endif

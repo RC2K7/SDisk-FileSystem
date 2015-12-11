@@ -14,7 +14,8 @@
 vector<string> splitString(string buffer);
 
 // Main Constructor
-Shell::Shell(string diskName, int numberOfBlocks, int blockSize) : FileSystem(diskName, numberOfBlocks, blockSize)
+Shell::Shell(string diskName, int numberOfBlocks, int blockSize, string indexFile,
+    string flatFile) : Table(diskName, numberOfBlocks, blockSize, indexFile, flatFile)
 {
     // Just Some Interesting Styling
     cout << "Interactive DOS Shell Version 0.1" << endl;
@@ -74,12 +75,13 @@ int Shell::type(string fileName)
     string fileBuffer = "";
     string blockBuffer = "";
 
-    for ( int curBlock = getFirstBlock(fileName); curBlock != 0; curBlock = this->nextBlock(fileName, curBlock)) {
+    for ( int curBlock = getFirstBlock(fileName); curBlock != 0; curBlock = 
+        this->nextBlock(fileName, curBlock)) {
         this->readBlock(fileName, curBlock, blockBuffer);
         fileBuffer += blockBuffer;
     }
 
-    fileBuffer = fileBuffer.substr(0, fileBuffer.find_first_of('#'));
+    //fileBuffer = fileBuffer.substr(0, fileBuffer.find_first_of('#'));
 
     cout << fileBuffer << endl;
 
@@ -103,7 +105,8 @@ int Shell::copy(string src, string dest)
     }
 
     string buffer = "";
-    for (int curBlock = this->getFirstBlock(src); curBlock != 0; curBlock = this->nextBlock(src, curBlock)) {
+    for (int curBlock = this->getFirstBlock(src); curBlock != 0; curBlock =
+        this->nextBlock(src, curBlock)) {
         this->readBlock(src, curBlock, buffer);
         this->addBlock(dest, buffer);
     }
@@ -120,7 +123,9 @@ int Shell::append(string fileName)
     }
 
     int lastBlock;
-    for (lastBlock = this->getFirstBlock(fileName); lastBlock != 0 && this->nextBlock(fileName, lastBlock) != 0; lastBlock = nextBlock(fileName, lastBlock)) ;
+    for (lastBlock = this->getFirstBlock(fileName); lastBlock != 0 &&
+        this->nextBlock(fileName, lastBlock) != 0; lastBlock = nextBlock(
+        fileName, lastBlock)) ;
 
     string totalBuffer;
     if (lastBlock != 0) {
@@ -192,6 +197,18 @@ void Shell::runShell()
                 continue;
             }
             this->append(args[1]);
+        } else if (args[0] == "table") {
+            if (args.size() < 3) {
+                cout << "Incorrect Number of Arguments" << endl;
+                continue;
+            }
+            if (args[1] == "input") {
+                this->buildTable(args[2]);
+            } else if (args[1] == "search") {
+                this->search(args[2]);
+            } else {
+                cout << "Unknown Table Command" << endl;
+            }
         } else {
             cout << "Unknown Command" << endl;
         }

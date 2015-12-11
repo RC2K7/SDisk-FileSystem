@@ -17,7 +17,7 @@ using namespace std;
 
 int main()
 {
-    Shell *shell = new Shell("test1", 256, 128);
+    Shell *shell = new Shell("test1", 256, 128, "index", "flat");
 
     delete shell;
 }

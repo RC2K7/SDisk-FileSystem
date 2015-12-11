@@ -9,16 +9,16 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-#include <string>
+#include "table.h"
 
-#include "filesystem.h"
+#include <string>
 
 using namespace std;
 
-class Shell : public FileSystem
+class Shell : public Table
 {
 public:
-	Shell(string, int, int);
+	Shell(string, int, int, string, string);
     int dir();
     int add(string);
     int del(string);

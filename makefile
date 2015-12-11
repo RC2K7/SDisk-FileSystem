@@ -2,14 +2,17 @@ all: main
 
 build: cleanall main
 
-main: main.o shell.o filesystem.o sdisk.o
-	g++ main.o shell.o filesystem.o sdisk.o -o SDisk
+main: main.o shell.o table.o filesystem.o sdisk.o
+	g++ main.o shell.o table.o filesystem.o sdisk.o -o SDisk
 
 main.o: main.cpp shell.o
 	g++ shell.o -c main.cpp
 
 shell.o: shell.cpp
 	g++ -c shell.cpp
+
+table.o: table.cpp
+	g++ -c table.cpp
 
 filesystem.o: filesystem.cpp
 	g++ -c filesystem.cpp
