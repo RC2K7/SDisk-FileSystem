@@ -7,11 +7,10 @@
 */
 
 #include "shell.h"
+#include "util.h"
 
 #include <iostream>
 #include <vector>
-
-vector<string> splitString(string buffer);
 
 // Main Constructor
 Shell::Shell(string diskName, int numberOfBlocks, int blockSize, string indexFile,
@@ -155,7 +154,7 @@ void Shell::runShell()
         cout << ">> ";
         getline(cin, buffer);
 
-        vector<string> args = splitString(buffer);
+        vector<string> args = Util::splitString(buffer);
 
         if (args.size() == 0) {
             cout << "No Command Found" << endl;
@@ -213,22 +212,4 @@ void Shell::runShell()
             cout << "Unknown Command" << endl;
         }
     }
-}
-
-// Splits A String Into A Vector (Splits On Spaces)
-vector<string> splitString(string buffer)
-{
-    vector<string> split;
-
-    size_t begin, end;
-    begin = buffer.find_first_not_of(' ');
-    end = buffer.find_first_of(' ', begin);
-
-    while (begin != end) {
-        split.push_back(buffer.substr(begin, end - begin));
-        begin = buffer.find_first_not_of(' ', end);
-        end = buffer.find_first_of(' ', begin);
-    }
-
-    return split;
 }
